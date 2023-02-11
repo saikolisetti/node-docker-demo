@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => {
-  res.send('Welcome to IT as Codep Prasanna,sai!!!');
+  res.send('Welcome to IT as Code update Prasanna,sai!!!');
 });
 
 app.listen(config.port, () => {
