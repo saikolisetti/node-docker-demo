@@ -5,41 +5,49 @@
 
 trigger:
 - master
+stages:
+- stage: buildstage
+  jobs:
+    - job: buildjob
+      pool:
+        vmImage: ubuntu-latest
 
-pool:
-  vmImage: ubuntu-latest
+      steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '10.x'
+        displayName: 'Install Node.js'
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
-
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
-- task: Docker@2
-  inputs:
-    containerRegistry: 'nodeyaml'
-    repository: 'nodeclassic'
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
-    tags: |
-      $(Build.BuildId)
-      latest
-- task: CopyFiles@2
-  inputs:
-    Contents: '**'
-    TargetFolder: '$(build.artifactstagingdirectory)'
-    SourceFolder: 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
-- task: AzureWebAppContainer@1
-  inputs:
-    azureSubscription: 'Free Trial(2)(22dc0a0c-2180-42bc-9c23-32e167c95f03)'
-    appName: 'node-classic'
-    containers: 'nodeclassic.azurecr.io/nodeclassic:latest'
+      - script: |
+          npm install
+          npm run build
+        displayName: 'npm install and build'
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'nodeyaml'
+          repository: 'nodeclassic'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile'
+          tags: |
+            $(Build.BuildId)
+            latest
+      - task: CopyFiles@2
+        inputs:
+          Contents: '**'
+          TargetFolder: '$(build.artifactstagingdirectory)'
+          SourceFolder: 
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'drop'
+          publishLocation: 'Container'
+#Creating Deployment Stage
+- stage: deploystage
+  jobs:
+    - job: deployjob
+      steps:
+      - task: AzureWebAppContainer@1
+        inputs:
+          azureSubscription: 'Free Trial(2)(22dc0a0c-2180-42bc-9c23-32e167c95f03)'
+          appName: 'node-classic'
+          containers: 'nodeclassic.azurecr.io/nodeclassic:latest'
