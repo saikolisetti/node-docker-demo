@@ -19,3 +19,17 @@ steps:
     npm install
     npm run build
   displayName: 'npm install and build'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'nodeyaml'
+    repository: 'nodeclassic'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(Build.BuildId)
+      latest
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
