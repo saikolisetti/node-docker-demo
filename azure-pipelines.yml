@@ -46,6 +46,12 @@ stages:
   jobs:
     - job: deployjob
       steps:
+      - task: DownloadBuildArtifacts@1
+        inputs:
+          buildType: 'current'
+          downloadType: 'single'
+          artifactName: 'drop'
+          downloadPath: '$(System.ArtifactsDirectory)'
       - task: AzureWebAppContainer@1
         inputs:
           azureSubscription: 'Free Trial(2)(22dc0a0c-2180-42bc-9c23-32e167c95f03)'
